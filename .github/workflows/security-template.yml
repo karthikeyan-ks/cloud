@@ -1,0 +1,34 @@
+name: Security Suite
+
+on:
+  workflow_call: # Line 4 - No extra empty lines or spaces after this
+
+jobs: # Line 6
+  npm-audit: # Line 7
+    runs-on: ubuntu-latest # Line 8
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: npm audit
+
+  license-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: npx license-checker-rseidelsohn --summary
+
+  secret-scanning:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # important
+
+      - name: TruffleHog OSS
+        uses: trufflesecurity/trufflehog@main
+        with:
+          base: ${{ github.event.before }}
+          head: ${{ github.sha }}
