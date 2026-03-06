@@ -1,4 +1,5 @@
 name: Issue Notifier
+
 on:
   workflow_call:
     inputs:
@@ -10,19 +11,23 @@ on:
         type: string
 
 jobs:
-  create_issue:
+  notify:
     runs-on: ubuntu-latest
     permissions:
       issues: write
-
     steps:
       - name: Create GitHub Issue
         uses: actions/github-script@v7
+        env:
+          # Map inputs to env variables to avoid syntax errors
+          ISSUE_TITLE: ${{ inputs.title }}
+          ISSUE_MESSAGE: ${{ inputs.message }}
         with:
-          script: | 
-            github.rest.issue.create({
+          script: |
+            const { ISSUE_TITLE, ISSUE_MESSAGE } = process.env;
+            github.rest.issues.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              title: "{{ input.title }}"
-              body: "{{ input.message }}"
-            })
+              title: ISSUE_TITLE,
+              body: ISSUE_MESSAGE
+            });
