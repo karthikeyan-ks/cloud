@@ -16,18 +16,40 @@ jobs:
     permissions:
       issues: write
     steps:
-      - name: Create GitHub Issue
+      - name: Handle Issue
         uses: actions/github-script@v7
         env:
-          # Map inputs to env variables to avoid syntax errors
           ISSUE_TITLE: ${{ inputs.title }}
           ISSUE_MESSAGE: ${{ inputs.message }}
         with:
           script: |
             const { ISSUE_TITLE, ISSUE_MESSAGE } = process.env;
-            github.rest.issues.create({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              title: ISSUE_TITLE,
-              body: ISSUE_MESSAGE
+            const commitSha = context.sha;
+            
+            // 1. Search for an existing open issue with this exact title
+            const searchQuery = `repo:${context.repo.owner}/${context.repo.repo} type:issue state:open in:title "${ISSUE_TITLE}"`;
+            const searchResult = await github.rest.search.issuesAndPullRequests({
+              q: searchQuery,
             });
+
+            if (searchResult.data.total_count > 0) {
+              // 2. Duplicate found! Get the issue number
+              const existingIssueNumber = searchResult.data.items[0].number;
+              console.log(`Duplicate found. Adding comment to issue #${existingIssueNumber}`);
+              
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: existingIssueNumber,
+                body: `⚠️ **Re-detected** in commit ${commitSha}.\n\n${ISSUE_MESSAGE}`
+              });
+            } else {
+              // 3. No duplicate found. Create a new issue
+              console.log("No duplicate found. Creating new issue.");
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: ISSUE_TITLE,
+                body: `Initial detection in commit ${commitSha}.\n\n${ISSUE_MESSAGE}`
+              });
+            }
