@@ -44,3 +44,7 @@ jobs:
   security-check:
     needs: test
     uses: ./.github/workflows/security-template.yml
+
+  secret-check:
+  needs: security-check
+  uses: ./.github/workflows/secret-detector.yml
