@@ -52,3 +52,7 @@ jobs:
   secret-check:
     needs: security-check
     uses: ./.github/workflows/secret-detector.yml
+
+  ai-review:
+    needs: secret-check
+    uses: ./github/workflows/ai-issue-generator.yml
