@@ -17,15 +17,13 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
       - name: Setup Node js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm' # This tells GitHub to remember your packages
-
+          cache: 'npm'
       - name: Install dependencies
-        run: npm ci # Faster and more reliable than 'npm install' for CI
+        run: npm ci
 
   test:
     runs-on: ubuntu-latest
@@ -33,27 +31,27 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
       - name: Setup Node js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm' # Re-uses the cache from the build job
-
+          cache: 'npm'
       - name: Install dependencies
-        run: npm ci # Uses the cache, so it's lightning fast
-
+        run: npm ci
       - name: Run Tests
         run: npm test
 
   security-check:
     needs: test
-    uses: ./.github/workflows/security-template.yml
+    # Added @main to the end of the path
+    uses: ./.github/workflows/security-template.yml@main
 
   secret-check:
     needs: security-check
-    uses: ./.github/workflows/secret-detector.yml
+    # Added @main to the end of the path
+    uses: ./.github/workflows/secret-detector.yml@main
 
   ai-review:
     needs: secret-check
-    uses: ./github/workflows/ai-issue-generator.yml
+    # Added @main to the end of the path
+    uses: ./.github/workflows/ai-issue-generator.yml@main
