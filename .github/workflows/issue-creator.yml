@@ -25,31 +25,29 @@ jobs:
           script: |
             const { ISSUE_TITLE, ISSUE_MESSAGE } = process.env;
             const commitSha = context.sha;
+            const actor = context.actor; // This is the person who pushed the code
             
-            // 1. Search for an existing open issue with this exact title
+            // 1. Search for an existing open issue
             const searchQuery = `repo:${context.repo.owner}/${context.repo.repo} type:issue state:open in:title "${ISSUE_TITLE}"`;
             const searchResult = await github.rest.search.issuesAndPullRequests({
               q: searchQuery,
             });
 
             if (searchResult.data.total_count > 0) {
-              // 2. Duplicate found! Get the issue number
               const existingIssueNumber = searchResult.data.items[0].number;
-              console.log(`Duplicate found. Adding comment to issue #${existingIssueNumber}`);
               
               await github.rest.issues.createComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number: existingIssueNumber,
-                body: `⚠️ **Re-detected** in commit ${commitSha}.\n\n${ISSUE_MESSAGE}`
+                body: `⚠️ **Re-detected** in commit ${commitSha} by @${actor}.\n\n${ISSUE_MESSAGE}`
               });
             } else {
-              // 3. No duplicate found. Create a new issue
-              console.log("No duplicate found. Creating new issue.");
-              await github.rest.issues.create({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                title: ISSUE_TITLE,
-                body: `Initial detection in commit ${commitSha}.\n\n${ISSUE_MESSAGE}`
-              });
-            }
+            // 2. Create new issue and ASSIGN it to the actor
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: ISSUE_TITLE,
+              assignees: [actor], // <--- This assigns the issue
+              body: `Initial detection in commit ${commitSha} by @${actor}.\n\n${ISSUE_MESSAGE}`
+            });
