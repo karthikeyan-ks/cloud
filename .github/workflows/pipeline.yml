@@ -51,4 +51,8 @@ jobs:
 
   ai-review:
     needs: secret-check
-    uses: ./.github/workflows/ai-issue-generator.yml # FIXED: Removed @main
+    uses: ./.github/workflows/ai-issue-generator.yml
+    # ADD THIS SECTION:
+    with:
+      title: "Security Alert: Automated Scan Detection"
+      message: "The pipeline has completed its scan. Please check the Codex summary and Gitleaks logs for details."
