@@ -43,15 +43,12 @@ jobs:
 
   security-check:
     needs: test
-    # Added @main to the end of the path
-    uses: ./.github/workflows/security-template.yml@main
+    uses: ./.github/workflows/security-template.yml # FIXED: Removed @main
 
   secret-check:
     needs: security-check
-    # Added @main to the end of the path
-    uses: ./.github/workflows/secret-detector.yml@main
+    uses: ./.github/workflows/secret-detector.yml # FIXED: Removed @main
 
   ai-review:
     needs: secret-check
-    # Added @main to the end of the path
-    uses: ./.github/workflows/ai-issue-generator.yml@main
+    uses: ./.github/workflows/ai-issue-generator.yml # FIXED: Removed @main
