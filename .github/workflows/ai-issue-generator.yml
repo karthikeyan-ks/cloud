@@ -1,0 +1,33 @@
+name: AI Issue Generator
+
+on:
+  workflow_call:
+    # This is where your 'issue' data must live as inputs
+    inputs:
+      title:
+        required: true
+        type: string
+      message:
+        required: true
+        type: string
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Issue Handler Script
+        uses: actions/github-script@v7
+        env:
+          ISSUE_TITLE: ${{ inputs.title }}
+          ISSUE_MESSAGE: ${{ inputs.message }}
+        with:
+          script: |
+            const script = require('./.github/scripts/issue-handler.js');
+            await script({github, context, core});

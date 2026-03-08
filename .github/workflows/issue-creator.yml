@@ -1,0 +1,33 @@
+name: Issue Notifier
+
+on:
+  workflow_call:
+    inputs:
+      title:
+        required: true
+        type: string
+      message:
+        required: true
+        type: string
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      contents: read # This allows the runner to read your script file
+    steps:
+      # CRITICAL STEP: This downloads your repo onto the runner
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Handle Issue via Script
+        uses: actions/github-script@v7
+        env:
+          ISSUE_TITLE: ${{ inputs.title }}
+          ISSUE_MESSAGE: ${{ inputs.message }}
+        with:
+          script: |
+            // Now that we've checked out the code, the file exists at this path
+            const script = require('./.github/scripts/issue-handler.js');
+            await script({github, context, core});
