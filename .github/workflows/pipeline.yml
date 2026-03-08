@@ -47,7 +47,7 @@ jobs:
 
   secret-check:
     needs: security-check
-    uses: ./.github/workflows/secret-detector.yml # FIXED: Removed @main
+    uses: ./.github/workflows/secret-detector.yml # FIXED: Removed @main from pipeline
 
   ai-review:
     needs: secret-check
