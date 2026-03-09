@@ -2,7 +2,7 @@ name: Auto code promotion
 
 on:
   schedule:
-    - cron: '1 * * * *' # Runs at the 1st minute of every hour
+    - cron: '* * * * *' # Runs at the 1st minute of every hour
   
   workflow_dispatch: {} # Corrected: Removed the 's'
 
