@@ -21,4 +21,4 @@ jobs:
       - name: Install runner and execute
         run: |
           npm install -g tsx
-          npx tsx ../scripts/cron-job.ts
+          npx tsx ./scripts/cron-job.ts
