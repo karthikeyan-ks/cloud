@@ -2,7 +2,7 @@ import { Request,Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 
 const publicRoutes = [
-    '/login',
+    '/auth/login',
     '/register',
     '/'
 ]
@@ -12,6 +12,7 @@ export function authenticateToken(
     res: Response,
     next: NextFunction
 ) {
+    console.log(`${req.path}`)
     if (publicRoutes.includes(req.path)) 
         return next();
 
