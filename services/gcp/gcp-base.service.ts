@@ -8,20 +8,23 @@ export class GCPBaseService {
 
     protected get pubsub(): PubSub {
         if (!this.pubsubClient) {
-            this.pubsubClient = new PubSub({
-                keyFilename: this.resolveGCPCredential()
-            });
+            const credentialPath = this.resolveGCPCredential();
+            this.pubsubClient = credentialPath
+                ? new PubSub({ keyFilename: credentialPath })
+                : new PubSub();
         }
 
         return this.pubsubClient;
     }
 
-    protected resolveGCPCredential(): string {
+    protected resolveGCPCredential(): string | undefined {
         const configuredPath = process.env.SERVICE_ACCOUNT_CREDENTIALS_PATH || ''
-        const resolvedPath = path.resolve(configuredPath);
 
-        if (!configuredPath) 
-            throw new Error(`Service Account Path: ${resolvedPath} not found`)
+        if (!configuredPath) {
+            return undefined;
+        }
+
+        const resolvedPath = path.resolve(configuredPath);
 
         if (!fs.existsSync(resolvedPath))
             throw new Error(`Service Account not found at ${resolvedPath}`)
