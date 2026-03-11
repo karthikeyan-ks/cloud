@@ -3,12 +3,14 @@ import { GCPBaseService } from "./gcp-base.service";
 
 export class GCPPubSubSubscription extends GCPBaseService {
     private readonly subscriptionName: string;
-    private readonly subscription: Subscription;
+    private subscription?: Subscription;
 
     constructor() {
         super()
         this.subscriptionName = process.env.PUB_SUB_SUBSCRIPTION_NAME || "";
+    }
 
+    startListening(): void {
         if (!this.subscriptionName) {
             throw new Error("PUB_SUB_SUBSCRIPTION_NAME is not configured");
         }

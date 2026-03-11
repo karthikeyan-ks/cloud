@@ -4,10 +4,17 @@ import fs from 'fs'
 import { PubSub } from '@google-cloud/pubsub';
 
 export class GCPBaseService {
+    private pubsubClient?: PubSub;
 
-     protected pubsub: PubSub = new PubSub({
-        keyFilename: this.resolveGCPCredential()
-    })
+    protected get pubsub(): PubSub {
+        if (!this.pubsubClient) {
+            this.pubsubClient = new PubSub({
+                keyFilename: this.resolveGCPCredential()
+            });
+        }
+
+        return this.pubsubClient;
+    }
 
     protected resolveGCPCredential(): string {
         const configuredPath = process.env.SERVICE_ACCOUNT_CREDENTIALS_PATH || ''
