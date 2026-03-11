@@ -1,10 +1,13 @@
 import express from "express";
 import { authenticateToken } from "./middlewares/jwttoken";
 import authRouter from "./routes/auth.routes";
+import { GCPPubSubSubscription } from "./services/gcp/gcp-pubsub-subscription.service";
 
 const app = express();
 
 app.use(express.json());
+
+const gcpPubSubSubscription: GCPPubSubSubscription = new GCPPubSubSubscription();
 
 app.get("/", (req, res) => {
   res.send("Hello, World! Your Express server is running.");

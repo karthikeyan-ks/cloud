@@ -137,3 +137,7 @@ dist
 # Vite logs files
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+.env
+config/keys/local/*
+config/key/local/service-account*.json
+config/key/local/project*.json
