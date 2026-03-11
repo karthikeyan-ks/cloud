@@ -5,6 +5,11 @@ on:
     branches:
       - main
 
+env:
+  REGION: asia-south1
+  REPOSITORY: my-repo
+  SERVICE: node-api
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -25,15 +30,23 @@ jobs:
       - name: Setup gcloud
         uses: google-github-actions/setup-gcloud@v2
 
-      - name: Build container
+      - name: Configure Docker auth
         run: |
-          gcloud builds submit \
-            --tag asia-south1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/my-repo/node-api
+          gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev --quiet
+
+      - name: Build and push container
+        env:
+          IMAGE: ${{ env.REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.SERVICE }}
+        run: |
+          docker build -t "$IMAGE" .
+          docker push "$IMAGE"
 
       - name: Deploy Cloud Run
+        env:
+          IMAGE: ${{ env.REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.SERVICE }}
         run: |
-          gcloud run deploy node-api \
-            --image asia-south1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/my-repo/node-api \
-            --region asia-south1 \
+          gcloud run deploy ${{ env.SERVICE }} \
+            --image "$IMAGE" \
+            --region ${{ env.REGION }} \
             --platform managed \
             --allow-unauthenticated
