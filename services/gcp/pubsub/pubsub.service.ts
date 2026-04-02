@@ -1,8 +1,9 @@
 import { PubSub, Subscription } from "@google-cloud/pubsub";
 import { IGCPPubSubService } from "./pubsub-service.interface";
 import Container from "../../../container";
+import dotenv from "dotenv";
 import { GCPBaseService } from "../gcp-base.service";
-
+dotenv.config();
 export class GCPPubSubService implements IGCPPubSubService {
     private topicName: string = process.env.PUB_SUB_TOPIC || "";
     private subscriptionName: string = process.env.PUB_SUB_SUBSCRIPTION_NAME || "";
