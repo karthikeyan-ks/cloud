@@ -1,23 +1,16 @@
 import "dotenv/config";
 import path from 'path'
 import fs from 'fs'
-import { PubSub } from '@google-cloud/pubsub';
+import dotenv from "dotenv";
+import Container from "../../container";
+import { IGCPPubSubService } from "./pubsub/pubsub-service.interface";
+import { IGCPBucketService } from "./bucket/bucker-service.interface";
+dotenv.config();
 
 export class GCPBaseService {
-    private pubsubClient?: PubSub;
 
-    protected get pubsub(): PubSub {
-        if (!this.pubsubClient) {
-            const credentialPath = this.resolveGCPCredential();
-            this.pubsubClient = credentialPath
-                ? new PubSub({ keyFilename: credentialPath })
-                : new PubSub();
-        }
 
-        return this.pubsubClient;
-    }
-
-    protected resolveGCPCredential(): string | undefined {
+    public resolveGCPCredential(): string | undefined {
         const configuredPath = process.env.SERVICE_ACCOUNT_CREDENTIALS_PATH || ''
 
         if (!configuredPath) {
@@ -38,4 +31,16 @@ export class GCPBaseService {
         }
         return resolvedPath;
     }
+
+    public init(): void {
+       const GCPPubSubServiceService: IGCPPubSubService = Container.resolve("GCPPubSubService");
+       const gcpBucketService: IGCPBucketService = Container.resolve("gcpBucketService");
+         GCPPubSubServiceService.init(
+          process.env.PUB_SUB_TOPIC || "bucket_triggerer",
+          process.env.PUB_SUB_SUBSCRIPTION_NAME || "bucket_triggerer-sub"
+         );
+         gcpBucketService.init();
+         gcpBucketService.notification("Bucket service initialized and ready to publish notifications");
+    }
+
 }

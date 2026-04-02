@@ -52,8 +52,10 @@ export async function connectToDatabase(
   retryDelayMs = 3000
 ): Promise<void> {
   let lastError: unknown;
+  console.log("Attempting to connect to PostgreSQL database...");
 
   for (let attempt = 1; attempt <= maxRetries; attempt += 1) {
+    console.log(`Database connection attempt ${attempt} of ${maxRetries}`);
     try {
       await sequelize.authenticate();
       console.log("PostgreSQL connected successfully");
@@ -68,6 +70,7 @@ export async function connectToDatabase(
         await sleep(retryDelayMs);
       }
     }
+    console.error("Database connection failed after all attempts", lastError);
   }
 
   throw lastError;
