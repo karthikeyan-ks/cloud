@@ -25,6 +25,13 @@ jobs:
 
   test:
     runs-on: ubuntu-latest
+    env:
+      PUB_SUB_SUBSCRIPTION_NAME: ${{ secrets.PUB_SUB_SUBSCRIPTION_NAME }}
+      PUB_SUB_TOPIC: ${{ secrets.PUB_SUB_TOPIC }}
+      db_user: ${{ secrets.DB_USER }}
+      db_password: ${{ secrets.DB_PASSWORD }}
+      db_name: ${{ secrets.DB_NAME }}
+      db_host: ${{ secrets.DB_HOST }}
     needs: build
     steps:
       - name: Checkout code
