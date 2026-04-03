@@ -24,8 +24,8 @@ export class GCPPubSubService implements IGCPPubSubService {
 
     private get pubsub(): PubSub {
         if (!this.pubsubClient) {
-            const credentialPath = this.baseService.resolveGCPCredential();
             if (config.env === "development") {
+                const credentialPath = this.baseService.resolveGCPCredential();
                 this.pubsubClient = credentialPath
                     ? new PubSub({ keyFilename: credentialPath })
                     : new PubSub();
