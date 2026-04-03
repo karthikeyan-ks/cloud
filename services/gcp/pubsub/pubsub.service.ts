@@ -1,12 +1,12 @@
 import { PubSub, Subscription } from "@google-cloud/pubsub";
 import { IGCPPubSubService } from "./pubsub-service.interface";
 import Container from "../../../container";
-import dotenv from "dotenv";
+import { config } from "../../../config";
 import { GCPBaseService } from "../gcp-base.service";
-dotenv.config();
+
 export class GCPPubSubService implements IGCPPubSubService {
-    private topicName: string = process.env.PUB_SUB_TOPIC || "";
-    private subscriptionName: string = process.env.PUB_SUB_SUBSCRIPTION_NAME || "";
+    private topicName: string = config.gcp.pubsub.topic;
+    private subscriptionName: string = config.gcp.pubsub.subscriptionName;
     private subscription: Subscription | null = null;
     private pubsubClient: PubSub | null = null;
     private baseService: GCPBaseService;
@@ -25,9 +25,13 @@ export class GCPPubSubService implements IGCPPubSubService {
     private get pubsub(): PubSub {
         if (!this.pubsubClient) {
             const credentialPath = this.baseService.resolveGCPCredential();
-            this.pubsubClient = credentialPath
-                ? new PubSub({ keyFilename: credentialPath })
-                : new PubSub();
+            if (config.env === "development") {
+                this.pubsubClient = credentialPath
+                    ? new PubSub({ keyFilename: credentialPath })
+                    : new PubSub();
+            } else {
+                this.pubsubClient = new PubSub();
+            }
         }
         return this.pubsubClient;
     }
