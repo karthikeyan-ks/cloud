@@ -5,6 +5,7 @@ import { GCPPubSubService } from "../pubsub/pubsub.service";
 import dotenv from "dotenv";
 import { IGCPPubSubService } from "../pubsub/pubsub-service.interface";
 import { asValue } from "awilix";
+import { config } from "../../../config";
 dotenv.config();
 
 
@@ -15,7 +16,7 @@ export class GCPBucketService implements IGCPBucketService{
 
     async init(): Promise<void> {
         try {
-            this.bucket = await this.bucketStorage.bucket(process.env.GCP_BUCKET_NAME || "default-bucket");
+            this.bucket = await this.bucketStorage.bucket(config.gcp.bucket.bucketName);
         } catch (error) {
             console.error("Error initializing bucket service:", error);
         }
@@ -25,7 +26,7 @@ export class GCPBucketService implements IGCPBucketService{
     uploadFile(bucketName: string, filePath: string, destinationPath: string): Promise<void> {
         throw new Error("Method not implemented.");
     }
-    
+
     downloadFile(bucketName: string, filePath: string, destinationPath: string): Promise<void> {
         throw new Error("Method not implemented.");
     }
@@ -49,8 +50,8 @@ export class GCPBucketService implements IGCPBucketService{
     notification(message: string): void {
         const gcpBucketNotification: IGCPPubSubService = new GCPPubSubService();
         gcpBucketNotification.init(
-            process.env.GCP_BUCKET_PUBSUB_TOPIC || "bucket_triggerer",
-            process.env.GCP_BUCKET_PUBSUB_SUBSCRIPTION || "bucket_triggerer-sub"
+            config.gcp.bucket.pubSubTopic,
+            config.gcp.bucket.pubSubSubscription
          );
         Container.register({
             GCPBucketNotification: asValue(gcpBucketNotification)

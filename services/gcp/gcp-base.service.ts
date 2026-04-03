@@ -1,17 +1,17 @@
 import "dotenv/config";
 import path from 'path'
 import fs from 'fs'
-import dotenv from "dotenv";
 import Container from "../../container";
 import { IGCPPubSubService } from "./pubsub/pubsub-service.interface";
 import { IGCPBucketService } from "./bucket/bucker-service.interface";
-dotenv.config();
+import { config } from "../../config";
 
 export class GCPBaseService {
 
 
     public resolveGCPCredential(): string | undefined {
-        const configuredPath = process.env.SERVICE_ACCOUNT_CREDENTIALS_PATH || ''
+        
+        const configuredPath = config.gcp.credentialPath;
 
         if (!configuredPath) {
             return undefined;
@@ -36,8 +36,8 @@ export class GCPBaseService {
        const GCPPubSubServiceService: IGCPPubSubService = Container.resolve("GCPPubSubService");
        const gcpBucketService: IGCPBucketService = Container.resolve("gcpBucketService");
          GCPPubSubServiceService.init(
-          process.env.PUB_SUB_TOPIC || "bucket_triggerer",
-          process.env.PUB_SUB_SUBSCRIPTION_NAME || "bucket_triggerer-sub"
+          config.gcp.pubsub.topic ,
+          config.gcp.pubsub.subscriptionName
          );
          gcpBucketService.init();
          gcpBucketService.notification("Bucket service initialized and ready to publish notifications");
